@@ -2,11 +2,11 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "TerrainEditorStuff.h"
 #include "TerrainSection.generated.h"
 
-class URuntimeMeshComponent;
 class UProceduralMeshComponent;
 class ATerrainGenerator;
 
@@ -25,52 +25,35 @@ public:
 	FVector CenterLocation;
 
 	UPROPERTY(EditAnywhere, Category = "ProceduralMeshGeneration")
-	bool bUseRuntimeMeshComponent = true;
+	bool bUseRuntimeMeshComponent = false;
 
 	UFUNCTION(BlueprintCallable, Category = "ProceduralMeshGeneration")
 	void RequestSculpting(const FSculptSettings& Settings, const FSculptInputInfo& InputInfo);
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+		USceneComponent* SceneRoot = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
+		UProceduralMeshComponent* ProceduralMeshComponent = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
+		UProceduralMeshComponent* ProceduralMeshComponentLOD1 = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
+		UProceduralMeshComponent* ProceduralMeshComponentLOD2 = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
+		UProceduralMeshComponent* ProceduralMeshComponentLOD3 = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
+		UProceduralMeshComponent* ProceduralMeshComponentLOD4 = nullptr;
 
 private:
 	virtual void BeginPlay() override;
 	void SetVisibility();
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	USceneComponent* SceneRoot = nullptr;
-
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	URuntimeMeshComponent* RuntimeMeshComponent = nullptr;
-
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UProceduralMeshComponent* ProceduralMeshComponent = nullptr;
-
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	URuntimeMeshComponent* RuntimeMeshComponentLOD1 = nullptr;
-
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UProceduralMeshComponent* ProceduralMeshComponentLOD1 = nullptr;
-
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	URuntimeMeshComponent* RuntimeMeshComponentLOD2 = nullptr;
-
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UProceduralMeshComponent* ProceduralMeshComponentLOD2 = nullptr;
-
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	URuntimeMeshComponent* RuntimeMeshComponentLOD3 = nullptr;
-
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UProceduralMeshComponent* ProceduralMeshComponentLOD3 = nullptr;
-
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	URuntimeMeshComponent* RuntimeMeshComponentLOD4 = nullptr;
-
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UProceduralMeshComponent* ProceduralMeshComponentLOD4 = nullptr;
-
 
 	TArray<UProceduralMeshComponent*> ProceduralMeshLODs;
-	TArray<URuntimeMeshComponent*> RuntimeMeshLODs;
-
 
 	APlayerController* PlayerControllerReference = nullptr;
 

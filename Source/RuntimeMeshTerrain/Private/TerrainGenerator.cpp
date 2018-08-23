@@ -1,13 +1,12 @@
 // Copyright 2016 Andreas Schoch (aka Minaosis). All Rights Reserved.
 
-#include "RuntimeMeshTerrain.h"
-#include "RuntimeMeshComponent.h" 
-#include "RuntimeMeshLibrary.h"
+#include "TerrainGenerator.h"
+// #include "RuntimeMeshTerrain.h"
+// #include "RuntimeMeshLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "KismetProceduralMeshLibrary.h"
-#include "SimplexNoiseBPLibrary.h"
+// #include "SimplexNoiseBPLibrary.h"
 #include "TerrainSection.h"
-#include "TerrainGenerator.h"
 
 
 ATerrainGenerator::ATerrainGenerator()
@@ -28,7 +27,6 @@ ATerrainGenerator::ATerrainGenerator()
 void ATerrainGenerator::BeginPlay()
 {
 	Super::BeginPlay();
-	USimplexNoiseBPLibrary::setNoiseSeed(Seed);
 	SetLODVisibility();
 	bUseTimerforGeneration ? GenerateMeshTimed() : GenerateMesh();
 }
@@ -116,7 +114,7 @@ void ATerrainGenerator::InitializeProperties()
 	SectionProperties.Normals.SetNum(SectionNumVerts, true);
 	SectionProperties.VertexColors.SetNum(SectionNumVerts, true);
 	SectionProperties.SectionPosition.SetNum(SectionNumVerts, true);
-	URuntimeMeshLibrary::CreateGridMeshTriangles(SectionXY, SectionXY, false, OUT SectionProperties.Triangles);
+	UKismetProceduralMeshLibrary::CreateGridMeshTriangles(SectionXY, SectionXY, false, OUT SectionProperties.Triangles);
 	AddBorderVerticesToSectionProperties();
 
 	// Init SectionPropertiesLOD1
@@ -127,7 +125,7 @@ void ATerrainGenerator::InitializeProperties()
 	SectionPropertiesLOD1.UV.SetNum(LOD1NumVerts, true);
 	SectionPropertiesLOD1.Normals.SetNum(LOD1NumVerts, true);
 	SectionPropertiesLOD1.VertexColors.SetNum(LOD1NumVerts, true);
-	URuntimeMeshLibrary::CreateGridMeshTriangles(SectionXYLOD1, SectionXYLOD1, false, OUT SectionPropertiesLOD1.Triangles);
+	UKismetProceduralMeshLibrary::CreateGridMeshTriangles(SectionXYLOD1, SectionXYLOD1, false, OUT SectionPropertiesLOD1.Triangles);
 
 	// Init SectionPropertiesLOD2
 	int32 SectionXYLOD2 = ((SectionXY - 1) / FactorLOD2) + 1;
@@ -137,7 +135,7 @@ void ATerrainGenerator::InitializeProperties()
 	SectionPropertiesLOD2.UV.SetNum(LOD2NumVerts, true);
 	SectionPropertiesLOD2.Normals.SetNum(LOD2NumVerts, true);
 	SectionPropertiesLOD2.VertexColors.SetNum(LOD2NumVerts, true);
-	URuntimeMeshLibrary::CreateGridMeshTriangles(SectionXYLOD2, SectionXYLOD2, false, OUT SectionPropertiesLOD2.Triangles);
+	UKismetProceduralMeshLibrary::CreateGridMeshTriangles(SectionXYLOD2, SectionXYLOD2, false, OUT SectionPropertiesLOD2.Triangles);
 
 	// Init SectionPropertiesLOD3
 	int32 SectionXYLOD3 = ((SectionXY - 1) / FactorLOD3) + 1;
@@ -147,7 +145,7 @@ void ATerrainGenerator::InitializeProperties()
 	SectionPropertiesLOD3.UV.SetNum(LOD3NumVerts, true);
 	SectionPropertiesLOD3.Normals.SetNum(LOD3NumVerts, true);
 	SectionPropertiesLOD3.VertexColors.SetNum(LOD3NumVerts, true);
-	URuntimeMeshLibrary::CreateGridMeshTriangles(SectionXYLOD3, SectionXYLOD3, false, OUT SectionPropertiesLOD3.Triangles);
+	UKismetProceduralMeshLibrary::CreateGridMeshTriangles(SectionXYLOD3, SectionXYLOD3, false, OUT SectionPropertiesLOD3.Triangles);
 
 	// Init SectionPropertiesLOD4
 	int32 SectionXYLOD4 = ((SectionXY - 1) / FactorLOD4) + 1;
@@ -157,7 +155,7 @@ void ATerrainGenerator::InitializeProperties()
 	SectionPropertiesLOD4.UV.SetNum(LOD4NumVerts, true);
 	SectionPropertiesLOD4.Normals.SetNum(LOD4NumVerts, true);
 	SectionPropertiesLOD4.VertexColors.SetNum(LOD4NumVerts, true);
-	URuntimeMeshLibrary::CreateGridMeshTriangles(SectionXYLOD4, SectionXYLOD4, false, OUT SectionPropertiesLOD4.Triangles);
+	UKismetProceduralMeshLibrary::CreateGridMeshTriangles(SectionXYLOD4, SectionXYLOD4, false, OUT SectionPropertiesLOD4.Triangles);
 
 	UE_LOG(LogTemp, Warning, TEXT(" %i %i %i %i %i"), SectionXY, SectionXYLOD1, SectionXYLOD2, SectionXYLOD3, SectionXYLOD4);
 }
@@ -275,9 +273,14 @@ void ATerrainGenerator::FillGlobalVertexData()
 				Normal = FVector(0.f, 0.f, 1.f);
 				break;
 
-			case ETerrainGeneration::TG_Noise:
+			/*case ETerrainGeneration::TG_Noise:
 				VertCoords = FVector(X * QuadSize, Y * QuadSize, GetHeightByNoise(X, Y));
 				Normal = CalculateVertexNormalByNoise(VertCoords / QuadSize);
+				break;*/
+
+			case ETerrainGeneration::TG_Noise:
+				VertCoords = FVector(X * QuadSize, Y * QuadSize, 0.f);
+				Normal = FVector(0.f, 0.f, 1.f);
 				break;
 
 			case ETerrainGeneration::TG_LineTrace:
@@ -332,8 +335,11 @@ void ATerrainGenerator::FillGlobalVertexDataTimed()
 			break;
 
 		case ETerrainGeneration::TG_Noise:
-			VertCoords = FVector(X * QuadSize, Y * QuadSize, GetHeightByNoise(X, Y));
-			Normal = CalculateVertexNormalByNoise(VertCoords / QuadSize);
+			//VertCoords = FVector(X * QuadSize, Y * QuadSize, GetHeightByNoise(X, Y));
+			//Normal = CalculateVertexNormalByNoise(VertCoords / QuadSize);
+			//break;
+			VertCoords = FVector(X * QuadSize, Y * QuadSize, 0.f);
+			Normal = FVector(0.f, 0.f, 1.f);
 			break;
 
 		case ETerrainGeneration::TG_LineTrace:
@@ -511,7 +517,9 @@ void ATerrainGenerator::ModifyTerrain(int32 SectionIndex, const FSculptSettings&
 					break;
 
 				case ESculptMode::ST_Noise:
-					VertexAddNoise(CurrentIndex, DistanceFraction, Settings);
+					//VertexAddNoise(CurrentIndex, DistanceFraction, Settings);
+					//break;
+					VertexChangeHeight(CurrentIndex, DistanceFraction, Settings);
 					break;
 
 				case ESculptMode::ST_Smooth:
@@ -642,22 +650,25 @@ FVector ATerrainGenerator::CalculateVertexNormal(int32 VertexIndex)
 
 FVector ATerrainGenerator::CalculateVertexNormalByNoise(FVector Coordinates)
 {
-	FVector ULoc = FVector((Coordinates.X + 1.f) * QuadSize, Coordinates.Y * QuadSize, GetHeightByNoise(Coordinates.X + 1.f, Coordinates.Y));
-	FVector DLoc = FVector((Coordinates.X - 1.f) * QuadSize, Coordinates.Y * QuadSize, GetHeightByNoise(Coordinates.X - 1.f, Coordinates.Y));
-	FVector RLoc = FVector(Coordinates.X * QuadSize, (Coordinates.Y + 1.f) * QuadSize, GetHeightByNoise(Coordinates.X, Coordinates.Y + 1.f));
-	FVector LLoc = FVector(Coordinates.X * QuadSize, (Coordinates.Y - 1.f) * QuadSize, GetHeightByNoise(Coordinates.X, Coordinates.Y - 1.f));
+	//FVector ULoc = FVector((Coordinates.X + 1.f) * QuadSize, Coordinates.Y * QuadSize, GetHeightByNoise(Coordinates.X + 1.f, Coordinates.Y));
+	//FVector DLoc = FVector((Coordinates.X - 1.f) * QuadSize, Coordinates.Y * QuadSize, GetHeightByNoise(Coordinates.X - 1.f, Coordinates.Y));
+	//FVector RLoc = FVector(Coordinates.X * QuadSize, (Coordinates.Y + 1.f) * QuadSize, GetHeightByNoise(Coordinates.X, Coordinates.Y + 1.f));
+	//FVector LLoc = FVector(Coordinates.X * QuadSize, (Coordinates.Y - 1.f) * QuadSize, GetHeightByNoise(Coordinates.X, Coordinates.Y - 1.f));
 
 
-	FVector X = ULoc - DLoc;
-	FVector Y = RLoc - LLoc;
+	//FVector X = ULoc - DLoc;
+	//FVector Y = RLoc - LLoc;
 
-	return FVector::CrossProduct(X, Y).GetSafeNormal();
+	//return FVector::CrossProduct(X, Y).GetSafeNormal();
+
+	return FVector(0.0f, 0.0f, 0.0f); // TODO: fix noise
 }
 
 
 float ATerrainGenerator::GetHeightByNoise(int32 XCoords, int32 YCoords)
 {
-	float QuadCorrection = QuadSize / 100.f;
+	// TODO: Add noise library
+	/*float QuadCorrection = QuadSize / 100.f;
 	float Noise;
 
 	float Octave1 = USimplexNoiseBPLibrary::SimplexNoiseInRange2D(XCoords / Scale1 * QuadCorrection, YCoords / Scale1 * QuadCorrection, 0.f, NoiseMultiplier1);
@@ -670,7 +681,8 @@ float ATerrainGenerator::GetHeightByNoise(int32 XCoords, int32 YCoords)
 	Noise += bUseOctave3 ? Octave3 : 0.f;
 	Noise += bUseOctave4 ? Octave4 : 0.f;
 
-	return Noise;
+	return Noise;*/
+	return 0.0f;
 }
 
 FColor ATerrainGenerator::CombineColors(FColor A, FColor B)
@@ -818,15 +830,17 @@ void ATerrainGenerator::VertexFlatten(int32 VertexIndex, float DistanceFraction,
 
 void ATerrainGenerator::VertexAddNoise(int32 VertexIndex, float DistanceFraction, const FSculptSettings& Settings)
 {
-	int32 VertsPerSide = (ComponentXY * SectionXY - (ComponentXY - 1));
-	int32 X = VertexIndex / VertsPerSide;
-	int32 Y = VertexIndex % VertsPerSide;
+	//int32 VertsPerSide = (ComponentXY * SectionXY - (ComponentXY - 1));
+	//int32 X = VertexIndex / VertsPerSide;
+	//int32 Y = VertexIndex % VertsPerSide;
 
-	float QuadCorrection = QuadSize / 100.f;
-	float Noise = USimplexNoiseBPLibrary::SimplexNoiseInRange2D((X  * QuadCorrection) / Settings.NoiseScale, (Y * QuadCorrection) / Settings.NoiseScale, 0.f, MaxZValueOffsetPerUpdate) * Settings.ToolStrength;
+	//float QuadCorrection = QuadSize / 100.f;
+	//float Noise = USimplexNoiseBPLibrary::SimplexNoiseInRange2D((X  * QuadCorrection) / Settings.NoiseScale, (Y * QuadCorrection) / Settings.NoiseScale, 0.f, MaxZValueOffsetPerUpdate) * Settings.ToolStrength;
 
-	float Alpha = Curve->GetFloatValue(DistanceFraction) * Settings.Falloff;
-	float ZValue = FMath::Lerp(Noise, 0.f, Alpha);
+	//float Alpha = Curve->GetFloatValue(DistanceFraction) * Settings.Falloff;
+	//float ZValue = FMath::Lerp(Noise, 0.f, Alpha);
 
-	GlobalVertexData[VertexIndex].Vertices += (Settings.bInvertToolDirection) ? (FVector(0.f, 0.f, -ZValue)) : (FVector(0.f, 0.f, ZValue));
+	//GlobalVertexData[VertexIndex].Vertices += (Settings.bInvertToolDirection) ? (FVector(0.f, 0.f, -ZValue)) : (FVector(0.f, 0.f, ZValue));
+
+	// TODO add noise function
 }

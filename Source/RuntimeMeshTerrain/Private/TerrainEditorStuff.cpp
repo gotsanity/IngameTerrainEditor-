@@ -1,7 +1,7 @@
 // Copyright 2016 Andreas Schoch (aka Minaosis). All Rights Reserved.
 
-#include "RuntimeMeshTerrain.h"
 #include "TerrainEditorStuff.h"
+#include "RuntimeMeshTerrain.h"
 
 
 // Sets default values

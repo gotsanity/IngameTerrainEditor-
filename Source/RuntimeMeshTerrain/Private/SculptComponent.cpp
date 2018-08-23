@@ -1,13 +1,12 @@
 // Copyright 2016 Andreas Schoch (aka Minaosis). All Rights Reserved.
 
+#include "SculptComponent.h"
 #include "RuntimeMeshTerrain.h"
 #include "TerrainSection.h"
-#include "SculptComponent.h"
 
 
 USculptComponent::USculptComponent()
 {
-	bWantsBeginPlay = false;
 	PrimaryComponentTick.bCanEverTick = false;
 }
 

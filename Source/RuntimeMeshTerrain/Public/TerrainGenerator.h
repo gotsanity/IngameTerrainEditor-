@@ -9,7 +9,6 @@
 
 class ATerrainSection;
 class UProceduralMeshComponent;
-class URuntimeMeshComponent;
 
 
 UCLASS()
